@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>600 Strikes Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f4f8;
+    }
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+    #timer {
+      font-size: 4rem;
+      margin: 1rem 0;
+    }
+    .controls button {
+      margin: 0.25rem 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #0066ff;
+      color: white;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      background: #004acc;
+    }
+    #strikes {
+      font-size: 1.5rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>600 Strikes Timer</h1>
+  <div id="timer">07:00</div>
+  <div class="controls">
+    <button id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button id="reset">Reset</button>
+  </div>
+  <div id="strikes">Strikes: 20/ 600</div>
+
+  <!-- Optional beep sound (royalty‑free Google action sound) -->
+  <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
+
+  <script>
+    const DURATION = 7 * 60; // seconds per strike
+    let remaining = DURATION;
+    let intervalId = null;
+    let strikes = 20;
+
+    const timerEl = document.getElementById("timer");
+    const strikesEl = document.getElementById("strikes");
+    const beep = document.getElementById("beep");
+
+    function formatTime(seconds) {
+      const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+      const s = String(seconds % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function updateTimer() {
+      timerEl.textContent = formatTime(remaining);
+    }
+
+    function tick() {
+      if (remaining > 0) {
+        remaining--;
+        updateTimer();
+      } else {
+        beep.currentTime = 0;
+        beep.play();
+
+        strikes++;
+        strikesEl.textContent = `Strikes: ${strikes} / 600`;
+
+        if (strikes >= 600) {
+          clearInterval(intervalId);
+          intervalId = null;
+          alert("All 600 strikes completed! Great job!");
+          return;
+        }
+
+        remaining = DURATION;
+        updateTimer();
+      }
+    }
+
+    document.getElementById("start").addEventListener("click", () => {
+      if (!intervalId) {
+        intervalId = setInterval(tick, 1000);
+      }
+    });
+
+    document.getElementById("pause").addEventListener("click", () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      clearInterval(intervalId);
+      intervalId = null;
+      remaining = DURATION;
+      strikes = 0;
+      updateTimer();
+      strikesEl.textContent = "Strikes: 20/ 600";
+    });
+
+    // Initialize display
+    updateTimer();
+  </script>
+</body>
+</html>
