@@ -54,7 +54,7 @@
     <button id="pause">Pause</button>
     <button id="reset">Reset</button>
   </div>
-  <div id="strikes">Strikes: 33/ 600</div>
+  <div id="strikes">Strikes: 34/ 600</div>
 
   <!-- Optional beep sound (royalty‑free Google action sound) -->
   <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
@@ -63,7 +63,7 @@
     const DURATION = 7 * 60; // seconds per strike
     let remaining = DURATION;
     let intervalId = null;
-    let strikes = 20;
+    let strikes = 34;
 
     const timerEl = document.getElementById("timer");
     const strikesEl = document.getElementById("strikes");
@@ -121,7 +121,7 @@
       remaining = DURATION;
       strikes = 0;
       updateTimer();
-      strikesEl.textContent = "Strikes: 33/ 600";
+      strikesEl.textContent = "Strikes: 34/ 600";
     });
 
     // Initialize display
