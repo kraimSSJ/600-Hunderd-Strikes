@@ -50,22 +50,23 @@
 </head>
 <body>
   <h1>600 Strikes Timer</h1>
-  <div id="timer">07:00</div>
+  <div id="timer">0
+    25:00</div>
   <div class="controls">
     <button id="start">Start</button>
     <button id="pause">Pause</button>
     <button id="reset">Reset</button>
   </div>
-  <div id="strikes">Strikes: 272/ 600</div>
+  <div id="strikes">Strikes: 0/ 600</div>
 
   <!-- Optional beep sound (royalty‑free Google action sound) -->
   <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
 
   <script>
-    const DURATION = 7 * 60; // seconds per strike
+    const DURATION = 25* 60; // seconds per strike
     let remaining = DURATION;
     let intervalId = null;
-    let strikes = 272;
+    let strikes = 0;
 
     const timerEl = document.getElementById("timer");
     const strikesEl = document.getElementById("strikes");
