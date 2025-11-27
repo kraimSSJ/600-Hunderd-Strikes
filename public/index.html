@@ -12,21 +12,37 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-  background-image: url("WhatsApp Image 2025-07-19 at 04.38.55.jpeg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-     margin: 0;
-   
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin: 0;
+      transition: background-image 0.5s ease;
+    }
+    body.work {
+      background-image: url("WhatsApp Image 2025-07-19 at 04.38.55.jpeg");
+    }
+    body.break {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     h1 {
       margin-bottom: 0.5rem;
-      color:white;
+      color: white;
+      font-size: 2rem;
+    }
+    #phase {
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
     #timer {
       font-size: 4rem;
-      color:white;
+      color: white;
       margin: 1rem 0;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
     .controls button {
       margin: 0.25rem 0.5rem;
@@ -37,6 +53,7 @@
       background: #0066ff;
       color: white;
       cursor: pointer;
+      transition: background 0.3s;
     }
     .controls button:hover {
       background: #004acc;
@@ -44,33 +61,34 @@
     #strikes {
       font-size: 1.5rem;
       margin-top: 1rem;
-      color:white;
+      color: white;
+      font-weight: bold;
     }
   </style>
 </head>
-<body>
+<body class="work">
   <h1>600 Strikes Timer</h1>
-  <div id="timer">0
-    7:00</div>
+  <div id="phase">Work</div>
+  <div id="timer">07:00</div>
   <div class="controls">
     <button id="start">Start</button>
     <button id="pause">Pause</button>
     <button id="reset">Reset</button>
   </div>
-  <div id="strikes">Strikes: 0/ 600</div>
-
-  <!-- Optional beep sound (royalty‑free Google action sound) -->
+  <div id="strikes">Strikes: 0 / 600</div>
   <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
-
   <script>
-    const DURATION = 7* 60; // seconds per strike
-    let remaining = DURATION;
+    const WORK_DURATION = 7 * 60; // 7 minutes work
+    const BREAK_DURATION = 3 * 60; // 3 minutes break
+    let remaining = WORK_DURATION;
     let intervalId = null;
     let strikes = 0;
-
+    let isWorkPhase = true;
     const timerEl = document.getElementById("timer");
+    const phaseEl = document.getElementById("phase");
     const strikesEl = document.getElementById("strikes");
     const beep = document.getElementById("beep");
+    const body = document.body;
 
     function formatTime(seconds) {
       const m = String(Math.floor(seconds / 60)).padStart(2, "0");
@@ -82,26 +100,43 @@
       timerEl.textContent = formatTime(remaining);
     }
 
-    function tick() {
-      if (remaining > 0) {
-        remaining--;
-        updateTimer();
-      } else {
-        beep.currentTime = 0;
-        beep.play();
+    function switchPhase() {
+      beep.currentTime = 0;
+      beep.play();
 
+      if (isWorkPhase) {
+        // Switching to break
+        isWorkPhase = false;
+        remaining = BREAK_DURATION;
+        phaseEl.textContent = "Break";
+        body.classList.remove("work");
+        body.classList.add("break");
+      } else {
+        // Switching to work
+        isWorkPhase = true;
+        remaining = WORK_DURATION;
+        phaseEl.textContent = "Work";
+        body.classList.remove("break");
+        body.classList.add("work");
         strikes++;
         strikesEl.textContent = `Strikes: ${strikes} / 600`;
 
         if (strikes >= 600) {
           clearInterval(intervalId);
           intervalId = null;
-          alert("All 600 strikes completed! Great job!");
+          alert("All 600 strikes completed! Amazing work!");
           return;
         }
+      }
+      updateTimer();
+    }
 
-        remaining = DURATION;
+    function tick() {
+      if (remaining > 0) {
+        remaining--;
         updateTimer();
+      } else {
+        switchPhase();
       }
     }
 
@@ -121,10 +156,14 @@
     document.getElementById("reset").addEventListener("click", () => {
       clearInterval(intervalId);
       intervalId = null;
-      remaining = DURATION;
+      remaining = WORK_DURATION;
       strikes = 0;
+      isWorkPhase = true;
+      phaseEl.textContent = "Work";
+      body.classList.remove("break");
+      body.classList.add("work");
       updateTimer();
-      strikesEl.textContent = "Strikes: 0/ 600";
+      strikesEl.textContent = "Strikes: 0 / 600";
     });
 
     // Initialize display
