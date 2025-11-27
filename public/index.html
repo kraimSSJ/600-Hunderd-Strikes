@@ -1,173 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>600 Strikes Timer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>600 Strikes – Training Mode</title>
   <style>
+    :root {
+      --work-color: #ffd700; /* gold */;
+      --break-color: #008b8b; /* dark cyan */;
+      --bg-dark: #0a0a0c;
+      --text-light: #ffffff;
+    }
+
     body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-dark);
+      color: var(--text-light);
       font-family: Arial, sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       background-size: cover;
       background-position: center;
-      background-repeat: no-repeat;
-      margin: 0;
       transition: background-image 0.5s ease;
     }
-    body.work {
-      background-image: url("WhatsApp Image 2025-07-19 at 04.38.55.jpeg");
+
+    .container {
+      text-align: center;
+      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.45);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+      transition: box-shadow 0.5s ease;
     }
-    body.break {
-      background-image:url("ChatGPT Image Nov 27, 2025, 11_39_39 AM.png");
-    }
+
     h1 {
-      margin-bottom: 0.5rem;
-      color: white;
-      font-size: 2rem;
+      margin: 0;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      font-weight: 900;
     }
+
     #phase {
-      font-size: 1.5rem;
-      color: white;
-      margin-bottom: 1rem;
+      margin-top: 8px;
+      font-size: 1.4rem;
       font-weight: bold;
       text-transform: uppercase;
       letter-spacing: 2px;
     }
+
     #timer {
-      font-size: 4rem;
-      color: white;
-      margin: 1rem 0;
-      font-weight: bold;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin: 20px 0;
+      font-size: 4.5rem;
+      font-weight: 900;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
     }
-    .controls button {
-      margin: 0.25rem 0.5rem;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      border: none;
+
+    /* Progress Bar */
+    #progress-container {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 8px;
-      background: #0066ff;
-      color: white;
+      margin-bottom: 20px;
+    }
+
+    #progress {
+      height: 12px;
+      width: 0%;
+      background: var(--work-color);
+      border-radius: 8px;
+      transition: width 0.2s linear;
+    }
+
+    /* Controls */
+    button {
+      padding: 10px 18px;
+      margin: 6px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
-    }
-    .controls button:hover {
-      background: #004acc;
-    }
-    #strikes {
-      font-size: 1.5rem;
-      margin-top: 1rem;
-      color: white;
       font-weight: bold;
+      transition: background 0.3s ease;
+      color: white;
+    }
+
+    #start { background: #007bff; }
+    #pause { background: #444; }
+    #reset { background: #ff4444; }
+
+    #start:hover { background: #005fcc; }
+    #pause:hover { background: #333; }
+    #reset:hover { background: #cc0000; }
+
+    #strikes {
+      margin-top: 15px;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    #level {
+      margin-top: 8px;
+      font-size: 1.1rem;
+      opacity: 0.85;
+    }
+
+    .work-bg {
+      background-image: url("work-bg.jpg");
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+    }
+
+    .break-bg {
+      background-image: url("break-bg.jpg");
+      box-shadow: 0 0 25px rgba(0, 183, 199, 0.5);
     }
   </style>
 </head>
-<body class="work">
-  <h1>600 Strikes Timer</h1>
-  <div id="phase">Work</div>
-  <div id="timer">07:00</div>
-  <div class="controls">
+<body class="work-bg">
+  <div class="container" id="mainBox">
+    <h1>600 STRIKES</h1>
+    <div id="phase">WORK</div>
+    <div id="timer">07:00</div>
+
+    <div id="progress-container">
+      <div id="progress"></div>
+    </div>
+
     <button id="start">Start</button>
     <button id="pause">Pause</button>
     <button id="reset">Reset</button>
+
+    <div id="strikes">Strikes: 0 / 600</div>
+    <div id="level">Level: 1 (0 EXP)</div>
   </div>
-  <div id="strikes">Strikes: 0 / 600</div>
-  <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
+
+  <audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
   <script>
-    const WORK_DURATION = 7 * 60; // 7 minutes work
-    const BREAK_DURATION = 3 * 60; // 3 minutes break
+    const WORK_DURATION = 7 * 60;
+    const BREAK_DURATION = 3 * 60;
+
     let remaining = WORK_DURATION;
     let intervalId = null;
+    let isWork = true;
     let strikes = 0;
-    let isWorkPhase = true;
+
+    // XP + Leveling
+    let exp = 0;
+    let level = 1;
+
     const timerEl = document.getElementById("timer");
     const phaseEl = document.getElementById("phase");
     const strikesEl = document.getElementById("strikes");
+    const progressEl = document.getElementById("progress");
+    const levelEl = document.getElementById("level");
     const beep = document.getElementById("beep");
+    const mainBox = document.getElementById("mainBox");
     const body = document.body;
 
-    function formatTime(seconds) {
-      const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-      const s = String(seconds % 60).padStart(2, "0");
+    function format(t) {
+      const m = String(Math.floor(t / 60)).padStart(2, "0");
+      const s = String(t % 60).padStart(2, "0");
       return `${m}:${s}`;
     }
 
-    function updateTimer() {
-      timerEl.textContent = formatTime(remaining);
+    function updateTimerUI() {
+      timerEl.textContent = format(remaining);
+      const total = isWork ? WORK_DURATION : BREAK_DURATION;
+      progressEl.style.width = `${100 - (remaining / total) * 100}%`;
+    }
+
+    function gainEXP(amount) {
+      exp += amount;
+      const required = level * 100;
+      while (exp >= required) {
+        exp -= required;
+        level++;
+      }
+      levelEl.textContent = `Level: ${level} (${exp} EXP)`;
     }
 
     function switchPhase() {
-      beep.currentTime = 0;
       beep.play();
-
-      if (isWorkPhase) {
-        // Switching to break
-        isWorkPhase = false;
-        remaining = BREAK_DURATION;
-        phaseEl.textContent = "Break";
-        body.classList.remove("work");
-        body.classList.add("break");
-      } else {
-        // Switching to work
-        isWorkPhase = true;
-        remaining = WORK_DURATION;
-        phaseEl.textContent = "Work";
-        body.classList.remove("break");
-        body.classList.add("work");
+      if (isWork) {
+        // Finished a strike
         strikes++;
         strikesEl.textContent = `Strikes: ${strikes} / 600`;
-
+        gainEXP(20);
         if (strikes >= 600) {
           clearInterval(intervalId);
-          intervalId = null;
-          alert("All 600 strikes completed! Amazing work!");
+          alert("ALL 600 STRIKES COMPLETED. YOU ASCENDED.");
           return;
         }
+        isWork = false;
+        remaining = BREAK_DURATION;
+        phaseEl.textContent = "BREAK";
+        body.className = "break-bg";
+      } else {
+        // Back to training
+        isWork = true;
+        remaining = WORK_DURATION;
+        phaseEl.textContent = "WORK";
+        body.className = "work-bg";
       }
-      updateTimer();
+      updateTimerUI();
     }
 
     function tick() {
       if (remaining > 0) {
         remaining--;
-        updateTimer();
+        updateTimerUI();
       } else {
         switchPhase();
       }
     }
 
-    document.getElementById("start").addEventListener("click", () => {
-      if (!intervalId) {
-        intervalId = setInterval(tick, 1000);
-      }
-    });
+    document.getElementById("start").onclick = () => {
+      if (!intervalId) intervalId = setInterval(tick, 1000);
+    };
 
-    document.getElementById("pause").addEventListener("click", () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-    });
+    document.getElementById("pause").onclick = () => {
+      clearInterval(intervalId);
+      intervalId = null;
+    };
 
-    document.getElementById("reset").addEventListener("click", () => {
+    document.getElementById("reset").onclick = () => {
       clearInterval(intervalId);
       intervalId = null;
       remaining = WORK_DURATION;
+      isWork = true;
       strikes = 0;
-      isWorkPhase = true;
-      phaseEl.textContent = "Work";
-      body.classList.remove("break");
-      body.classList.add("work");
-      updateTimer();
+      exp = 0;
+      level = 1;
+      phaseEl.textContent = "WORK";
+      body.className = "work-bg";
+      updateTimerUI();
       strikesEl.textContent = "Strikes: 0 / 600";
-    });
+      levelEl.textContent = "Level: 1 (0 EXP)";
+    };
 
-    // Initialize display
-    updateTimer();
+    updateTimerUI();
   </script>
 </body>
 </html>
